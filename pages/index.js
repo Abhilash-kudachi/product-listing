@@ -9,17 +9,26 @@ export default function Home({ products }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => {
-      const filtered = products.filter((product) =>
-        product.title.toLowerCase().includes(search.toLowerCase())
-      );
-      setFilteredProducts(filtered);
-      setLoading(false);
-    }, 500);
+  // If the user hasn't typed anything yet, just show all products directly without loading delays
+  if (!search.trim()) {
+    setFilteredProducts(products);
+    setLoading(false);
+    return;
+  }
 
-    return () => clearTimeout(timer);
-  }, [search, products]);
+  setLoading(true);
+
+  const timer = setTimeout(() => {
+    const filtered = products.filter((product) =>
+      product.title.toLowerCase().includes(search.toLowerCase())
+    );
+
+    setFilteredProducts(filtered);
+    setLoading(false);
+  }, 500);
+
+  return () => clearTimeout(timer);
+}, [search, products]); // Tracks both search typing and the raw products arrival
 
   return (
     <>
