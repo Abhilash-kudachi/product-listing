@@ -3,7 +3,7 @@
 A responsive e-commerce storefront that fetches data from the Fake Store API, featuring dynamic client-side filtering via a debounced search bar and a responsive grid layout built using native CSS Grid capabilities.
 
 ## 🚀 Live Demo
-[View Live Deployment Here](YOUR_VERCEL_LIVE_DEMO_LINK_HERE)
+[https://product-listing-green.vercel.app/]
 
 ---
 
