@@ -161,12 +161,37 @@ export default function Home({ products: initialProducts }) {
   );
 }
 
+// export async function getServerSideProps() {
+//   try {
+//     const response = await fetch("https://fakestoreapi.com/products");
+//     const products = await response.json();
+//     return { props: { products } };
+//   } catch (error) {
+//     return { props: { products: [] } };
+//   }
+// }
 export async function getServerSideProps() {
   try {
-    const response = await fetch("https://fakestoreapi.com/products");
-    const products = await response.json();
-    return { props: { products } };
-  } catch (error) {
-    return { props: { products: [] } };
+    const res = await fetch("https://fakestoreapi.com/products");
+
+    console.log("Status:", res.status);
+
+    const products = await res.json();
+
+    console.log("Products:", products.length);
+
+    return {
+      props: {
+        products,
+      },
+    };
+  } catch (err) {
+    console.error(err);
+
+    return {
+      props: {
+        products: [],
+      },
+    };
   }
 }
