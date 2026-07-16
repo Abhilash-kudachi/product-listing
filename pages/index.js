@@ -3,32 +3,49 @@ import Navbar from "../components/Navbar";
 import ProductCard from "../components/ProductCard";
 import Loader from "../components/Loader";
 
-export default function Home({ products }) {
+export default function Home({ products: initialProducts }) {
+  const [products, setProducts] = useState(initialProducts || []);
   const [search, setSearch] = useState("");
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [filteredProducts, setFilteredProducts] = useState(initialProducts || []);
   const [loading, setLoading] = useState(false);
 
+  // 1. Client-side fallback fetch if server-side data fails to load on Vercel
   useEffect(() => {
-  // If the user hasn't typed anything yet, just show all products directly without loading delays
-  if (!search.trim()) {
-    setFilteredProducts(products);
-    setLoading(false);
-    return;
-  }
+    if (products.length === 0) {
+      setLoading(true);
+      fetch("https://fakestoreapi.com/products")
+        .then((res) => res.json())
+        .then((data) => {
+          setProducts(data);
+          setFilteredProducts(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Client fetch failed too:", err);
+          setLoading(false);
+        });
+    }
+  }, []);
 
-  setLoading(true);
+  // 2. Search & synchronization handler
+  useEffect(() => {
+    if (!search.trim()) {
+      setFilteredProducts(products);
+      setLoading(false);
+      return;
+    }
 
-  const timer = setTimeout(() => {
-    const filtered = products.filter((product) =>
-      product.title.toLowerCase().includes(search.toLowerCase())
-    );
+    setLoading(true);
+    const timer = setTimeout(() => {
+      const filtered = products.filter((product) =>
+        product.title.toLowerCase().includes(search.toLowerCase())
+      );
+      setFilteredProducts(filtered);
+      setLoading(false);
+    }, 500);
 
-    setFilteredProducts(filtered);
-    setLoading(false);
-  }, 500);
-
-  return () => clearTimeout(timer);
-}, [search, products]); // Tracks both search typing and the raw products arrival
+    return () => clearTimeout(timer);
+  }, [search, products]);
 
   return (
     <>
@@ -42,7 +59,6 @@ export default function Home({ products }) {
             <h3>No Products Found 😔</h3>
           </div>
         ) : (
-          /* Native Grid Layout Container */
           <div
             style={{
               display: "grid",
@@ -57,7 +73,6 @@ export default function Home({ products }) {
         )}
       </div>
 
-      {/* CRITICAL LAYOUT & IMAGE FIXES */}
       <style jsx global>{`
         body {
           background-color: #f8fafc !important;
@@ -65,7 +80,6 @@ export default function Home({ products }) {
           padding: 0;
           font-family: sans-serif;
         }
-
         .my-product-card {
           background: #ffffff;
           border: 1px solid #e2e8f0;
@@ -77,12 +91,10 @@ export default function Home({ products }) {
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-
         .my-product-card:hover {
           transform: translateY(-4px);
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
-
         .my-image-wrapper {
           height: 200px;
           display: flex;
@@ -92,8 +104,6 @@ export default function Home({ products }) {
           background: #ffffff;
           border-bottom: 1px solid #f1f5f9;
         }
-
-        /* THIS FORCES IMAGES TO STAY IN THEIR CARDS */
         .my-image-wrapper img {
           max-width: 100% !important;
           max-height: 100% !important;
@@ -101,14 +111,12 @@ export default function Home({ products }) {
           height: auto !important;
           object-fit: contain !important;
         }
-
         .my-card-body {
           padding: 16px;
           display: flex;
           flex-direction: column;
           flex-grow: 1;
         }
-
         .my-card-title {
           font-size: 14px;
           font-weight: 600;
@@ -121,7 +129,6 @@ export default function Home({ products }) {
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
         }
-
         .my-category-badge {
           font-size: 10px;
           text-transform: uppercase;
@@ -133,20 +140,17 @@ export default function Home({ products }) {
           align-self: flex-start;
           margin-bottom: 16px;
         }
-
         .my-footer-row {
           margin-top: auto;
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
-
         .my-price {
           font-size: 18px;
           font-weight: 700;
           color: #2563eb;
         }
-
         .my-rating {
           font-size: 12px;
           color: #eab308;
